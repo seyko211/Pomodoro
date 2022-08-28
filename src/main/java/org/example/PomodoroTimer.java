@@ -10,60 +10,63 @@ import java.util.concurrent.TimeUnit;
 public class PomodoroTimer {
     public static int test = 0;
     public static void main(String[] args) throws InterruptedException, NumberFormatException, ArithmeticException{
-        System.out.println("-- Таймер Pomodoro --\nВведите: -w <время работы> -b <врмемя отдыха> " +
-                "-с <количество повторов>");
-        String[] cmd = new Scanner(System.in).nextLine().split(" ");
+        System.out.println("-- Таймер Pomodoro --");
 
         int work = 50; // время работы, мин
         int breake = 10; // время отдыха, мин
         int sizebreak = 30; // размер строки прогресса (работа)
         int sizework = 30; // размер строки прогресса (отдых)
-        int help = 0; // режим справки
+        boolean help; // режим справки
         int count = 1; // количество итератий работа-отдых
 
-        //
-        for(int i=0; i < cmd.length; i++){
-            try {
-                switch (cmd[i]) {
-                    case "-help" -> {
-                        System.out.println(
-                                "\n\nPomodoro - сделай свое время более эффективным\n");
-                        System.out.println(
-                                "	-w <time>: время работы, сколько минут хочешь работать.");
-                        System.out.println(
-                                "	-b <time>: время отдыха, сколько минут хочешь отдыхать.");
-                        System.out.println(
-                                "	-c <count>: количество повторов.");
-                        System.out.println(
-                                "	-help: меню помощи.");
-                        System.out.println(
-                                "	-exit: закрыть таймер.\n\nПопробуйте еще раз.");
-                        help = 1;
+        do {
+            help = false;
+            System.out.println("Введите: -w <время работы> -b <время отдыха> -с <количество повторов>");
+            String[] cmd = new Scanner(System.in).nextLine().split(" ");
+            for(int i=0; i < cmd.length; i++){
+                try {
+                    switch (cmd[i]) {
+                        case "-help" -> {
+                            System.out.println(
+                                    "	-w <minute>: время работы, сколько минут хочешь работать.");
+                            System.out.println(
+                                    "	-b <minute>: время отдыха, сколько минут хочешь отдыхать.");
+                            System.out.println(
+                                    "	-c <count>: количество повторов.");
+                            System.out.println(
+                                    "	-help: меню помощи.");
+                            System.out.println(
+                                    "	-exit: закрыть таймер.\n\nПопробуйте еще раз.");
+                            help = true;
+                        }
+                        case "-w" -> work = Integer.parseInt(cmd[++i]);
+                        case "-b" -> breake = Integer.parseInt(cmd[++i]);
+                        case "-c" -> count = (Integer.parseInt(cmd[++i])) < 1 ? 1 : Integer.parseInt(cmd[i]);
+                        case "-exit" -> System.exit(0);
+                        default -> myExeption();
                     }
-                    case "-w" -> work = Integer.parseInt(cmd[++i]);
-                    case "-b" -> breake = Integer.parseInt(cmd[++i]);
-                    case "-c" -> count = (Integer.parseInt(cmd[++i])) < 1 ? 1 : Integer.parseInt(cmd[++i]);
-                    case "-exit" -> System.exit(0);
-                    default -> myExeption();
+                } catch (NumberFormatException e) {
+                    myExeption();
                 }
-            } catch (NumberFormatException e) {
-                myExeption();
             }
-        }
-        if(help == 0){
-            long startTime = System.currentTimeMillis();
-            try {
-                for (int i = 1; i <= count; i++) {
-                    timer(work, breake, sizebreak, sizework);
+            if(!help){
+                long startTime = System.currentTimeMillis();
+                try {
+                    for (int i = 1; i <= count; i++) {
+                        timer(work, breake, sizebreak, sizework, count - i);
+                    }
+                } catch (ArithmeticException e){
+                    myExeption();
                 }
-            } catch (ArithmeticException e){
-                myExeption();
+                long endTime = System.currentTimeMillis();
+                System.out.println("Pomodoro таймер истек.\nОбщее время: " + (endTime-startTime)/(1000 * 60)+ " min");
             }
-            long endTime = System.currentTimeMillis();
-            System.out.println("Pomodoro таймер истек: " + (endTime-startTime)/(1000 * 60)+ " min");
-        }
+        } while (true);
+
+
     }
-    public static void timer(int work, int breake, int sizebreak, int sizework) throws InterruptedException{
+    public static void timer(int work, int breake, int sizebreak, int sizework, int count) throws InterruptedException{
+        System.out.printf("Время работы: %d минут, Время отдыха: %d минут, Повторов: %d\n", work, breake, count);
         printProgress("Прогресс работы:  ", work, sizework);
         printProgress("Прогресс отдыха: ", breake, sizebreak);
     }
